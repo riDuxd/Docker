@@ -19,6 +19,5 @@ services:
     ports:
     # you may chose your own ports, I just chose these
     - 5054:5054
-    - 49312:49312
     volumes:
       - ./cloudflared:/etc/cloudflared
