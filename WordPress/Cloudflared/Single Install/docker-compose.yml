@@ -1,0 +1,65 @@
+version: "3.9"
+    
+services:
+
+  db:
+    image: mariadb:latest
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: mysqlpasswordhere
+      MYSQL_DATABASE: wordpress
+      # User Password for phpMyAdmin as well
+      MYSQL_USER: mysqlusernamehere
+      # Password for phpMyAdmin as well
+      MYSQL_PASSWORD: mysqluserpasswordhere
+    
+  wordpress:
+    depends_on:
+      - db
+    image: wordpress:latest
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    ports:
+      # Use your own ports here
+      - "WP-PORT-HERE:80"
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: mysqlusernamehere
+      WORDPRESS_DB_PASSWORD: mysqluserpasswordhere
+
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin:latest
+    restart: unless-stopped
+    ports:
+      # Use your own ports here
+      - 'PHP-PORT-HERE:80'
+    environment:
+      - PMA_HOST=db
+      - MYSQL_ROOT_PASSWORD=mysqlpasswordhere
+  
+  # to get the certificate, login to your Cloudflare account FIRST, then go to https://dash.cloudflare.com/warp
+  # select a domain you prefer but it doesn't matter since this cert.pem file is valid account wide, then download it
+  # create a cloudflared folder in the project root directory and move the certificate inside the cloudflared folder
+  # after you run docker-compose up -d, it will generate a [UUID].json file. copy the [UUID] and replace the filler [UUID] inside the config.yml file
+  # go back to your Cloudflare dashboard and create a new CNAME DNS record with Name: [Your-Subdomain] Content:[UUID].cfargotunnel.com
+  # if everything is done right, then it should work.
+
+  cloudflared:
+    depends_on:
+      - wordpress
+    image: cloudflare/cloudflared:2021.8.2
+    restart: unless-stopped
+    command: tunnel --name NAME-HERE --url YOUR-LOCAL-SERVER-IP-HERE:WP-PORT-HERE
+    volumes:
+      - ./cloudflared:/etc/cloudflared
+
+volumes:
+  db_data:
+  wordpress_data:
