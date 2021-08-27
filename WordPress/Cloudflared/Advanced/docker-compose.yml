@@ -74,10 +74,10 @@ services:
   # select a domain you prefer but it doesn't matter since this cert.pem file is valid account wide, then download it
   # create a cloudflared folder in the project root directory and move the certificate inside the cloudflared folder
   # after you run docker-compose up -d, it will generate a [UUID].json file inside the cloudflared folder.
-  # create a config.yml file and inside the empty config.yml, copy the 2 lines below, replacing the [UUID] with the generated UUID
-  # tunnel: [UUID]
-  # credentials-file: /etc/cloudflared/[UUID].json
+  # after you run docker-compose up -d, it will generate a [UUID].json file inside the cloudflared folder.
+  # download the config.yml file and move it to the cloudflared folder. replace the [UUID] with the generated UUID above
   # go back to your Cloudflare dashboard and create a new CNAME DNS record with Name: [Your-Subdomain] Content:[UUID].cfargotunnel.com
+  # run docker-compose up -d and verify there are no errors
   # if everything is done right, then it should work.
   cloudflared:
     depends_on:
