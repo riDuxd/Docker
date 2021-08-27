@@ -1,0 +1,19 @@
+tunnel: [UUID]
+credentials-file: /etc/cloudflared/[UUID].json
+
+# As far I know, you can add as many services as you'd like here
+ingress:
+  # hello world to test your tunnel
+  - hostname: hello.yourdomain.com
+    service: hello_world
+  # Site/Service 1
+  - hostname: site1.yourdomain.com
+    service: YOUR-LOCAL-SERVER/SERVICE-IP:SERVER-PORT-HERE
+  # Site/Service 2
+  - hostname: site2.yourdomain.com
+    service: YOUR-LOCAL-SERVER/SERVICE-IP:SERVER-PORT-HERE
+  # Site/Service 3
+  - hostname: site3.yourdomain.com
+    service: YOUR-LOCAL-SERVER/SERVICE-IP:SERVER-PORT-HERE
+  # Cloudflared status? Not sure; it was 404 before and I just changed it to 200
+  - service: http_status:200
