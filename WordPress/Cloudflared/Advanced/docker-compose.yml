@@ -11,7 +11,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: mysqlpasswordhere
       MYSQL_DATABASE: wordpress
-       # User Password for phpMyAdmin as well
+      # User Password for phpMyAdmin as well
       MYSQL_USER: mysqlusernamehere
       # Password for phpMyAdmin as well
       MYSQL_PASSWORD: mysqluserpasswordhere
@@ -76,7 +76,6 @@ services:
   # after you run docker-compose up -d, it will generate a [UUID].json file. copy the [UUID] and replace the filler [UUID] inside the config.yml file
   # go back to your Cloudflare dashboard and create a new CNAME DNS record with Name: [Your-Subdomain] Content:[UUID].cfargotunnel.com
   # if everything is done right, then it should work.
-
   cloudflared:
     depends_on:
       - wordpress
