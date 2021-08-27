@@ -1,1 +1,2 @@
-
+  tunnel: [UUID]
+  credentials-file: /etc/cloudflared/[UUID].json
