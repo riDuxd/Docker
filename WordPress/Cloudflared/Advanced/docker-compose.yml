@@ -1,0 +1,76 @@
+version: "3.9"
+    
+services:
+
+  db:
+    image: mariadb:latest
+    volumes:
+      - db_data:/var/lib/mysql
+    command: '--default-authentication-plugin=mysql_native_password'
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: mysqlpasswordhere
+      MYSQL_DATABASE: wordpress
+       # User Password for phpMyAdmin as well
+      MYSQL_USER: mysqlusernamehere
+      # Password for phpMyAdmin as well
+      MYSQL_PASSWORD: mysqluserpasswordhere
+    
+  wordpress:
+    depends_on:
+      - db
+    # If you need different WP and PHP version, just change it below
+    image: wordpress:fpm-alpine
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: mysqlusernamehere
+      WORDPRESS_DB_PASSWORD: mysqluserpasswordhere
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_CONFIG_EXTRA:
+        define( 'WP_CACHE', true );
+        define( 'WP_REDIS_HOST', 'redis' );
+        define( 'WP_REDIS_PORT', 6379 );
+        define( 'WP_REDIS_CLIENT', 'predis' );
+
+  webserver:
+    # nginx needs wordpress started first
+    depends_on:
+      - wordpress
+    image: nginx:mainline-alpine
+    restart: unless-stopped
+    # map external port to nginx's ports (external:nginx) to access our site!!! you can of course change your ports for development, just make sure you listen to them in nginx
+    ports:
+     - "8010:8010"
+    volumes:                                                                                        
+    # we will also mount wordpress to nginx's html folder to easily serve it                                                            
+    - wordpress_data:/var/www/html                                                                     
+    # add our own nginx-config into conf.d folder     
+    - ./nginx-conf:/etc/nginx/conf.d                                        
+
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin:latest
+    restart: always
+    ports:
+      - '8011:80'
+    environment:
+      # - PMA_HOSTS=db,db:3306
+      - PMA_HOST=db
+      - MYSQL_ROOT_PASSWORD=mysqlpasswordhere
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+      - ./redis-conf/redis.conf:/etc/redis.conf
+
+volumes:
+  db_data:
+  wordpress_data:
+  redis_data:
